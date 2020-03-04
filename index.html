@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <style>
+      
+      body{
+        margin-top: 30px;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; overflow-y: scroll;}
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 60%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #messages { margin-bottom: 40px }
+
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+
+      <div id="userFormArea" class="row">
+        <div class="col-md-12"></div>
+        <form id="userForm">
+          <div class="form-group">
+            <br/>
+          </div>
+
+        </form>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="well">
+            <h3>Online Users</h3>
+            <ul class="list-group" id="users"></ul>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="chat" id="chat"></div>
+          </div>
+      </div>
+    </div>
+    <ul id="messages"></ul>
+    <form id="messageForm">
+      <input id="m" autocomplete="off" />
+      <button>Send</button>
+    </form>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+            $(function () {
+              var socket = io();
+              var $messageForm = $('#messageForm');
+              var $userForm = $('#userForm')
+              var $userFromArea = $('#userFormArea')
+              var $users = $('#users');
+              var $username = $('#username')
+
+              socket.on('get users', function(data){
+                var html = '';
+                for(i=0; i<data.length; i++){
+                  data.pop[i];
+                  //socket.emit('chat message', data);
+                  //socket.emit('chat message', socket.id);
+                  html += '<li class="list-group-item">'+ data[i] +'</li>';
+
+                }
+                $users.html(html);
+                
+              });
+              socket.emit('new user', $username.val(), function(msg){});
+              
+              $('form').submit(function(e){
+                e.preventDefault(); // prevents page reloading
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+              });
+              socket.on('chat message', function(msg){
+                    $('#messages').css('font-weight', 'bold').append($('<li>').text(msg));
+              });
+
+              socket.on('user color', function(username){
+                $username.val().css('color', '#ffffff');
+              });
+
+              // $('form').submit(function(){
+              //   if($('#m').val().includes('/nick')){
+              //     console.log('hello');
+              // }
+
+              // });
+            });
+    </script>
+
+    <!-- <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('connect', function(data) {
+              //console.log('socket connected')
+            });
+    </script> -->
+
+  </body>
+</html>
